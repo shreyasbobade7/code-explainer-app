@@ -1,0 +1,33 @@
+# Build
+target/
+node_modules/
+!.mvn/wrapper/maven-wrapper.jar
+build/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+logs/
+
+# Environment
+.env
+.env.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Spring Boot secrets
+src/main/resources/application.properties
+src/main/resources/application-dev.properties
+
+# Environment files
+.env
+.env.local
