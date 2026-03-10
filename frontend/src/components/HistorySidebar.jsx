@@ -1,13 +1,4 @@
-import type { SnippetHistoryItem } from '../types/api';
-
-interface HistorySidebarProps {
-  items: SnippetHistoryItem[];
-  selectedId: string | null;
-  onSelect: (item: SnippetHistoryItem) => void;
-  onClear: () => void;
-}
-
-export function HistorySidebar({ items, selectedId, onSelect, onClear }: HistorySidebarProps) {
+export function HistorySidebar({ items, selectedId, onSelect, onClear }) {
   return (
     <div className="flex flex-col h-full">
       <div className="flex items-center justify-between px-3 py-3 border-b border-[var(--border-default)]">
@@ -51,13 +42,13 @@ export function HistorySidebar({ items, selectedId, onSelect, onClear }: History
   );
 }
 
-function shortPreview(code: string, maxLen = 40): string {
+function shortPreview(code, maxLen = 40) {
   const firstLine = code.trim().split('\n')[0]?.trim() || '';
   if (!firstLine) return '(empty)';
   return firstLine.length > maxLen ? firstLine.slice(0, maxLen) + '…' : firstLine;
 }
 
-function formatTime(timestamp: number): string {
+function formatTime(timestamp) {
   const d = new Date(timestamp);
   const now = new Date();
   const diff = now.getTime() - d.getTime();

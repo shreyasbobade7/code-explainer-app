@@ -26,12 +26,15 @@ import java.util.regex.Pattern;
 /**
  * Parser for Python code using AST via lightweight subprocess script - extracts
  * functions, loops, conditionals, and variable assignments.
+ * On Windows, tries "py", "python3", "python" for compatibility.
  */
 @Component
 public class PythonParser implements CodeElementParser {
 
     private static final Logger log = LoggerFactory.getLogger(PythonParser.class);
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
+    private static final List<String> PYTHON_CMD_CANDIDATES = List.of("py", "python3", "python");
 
     private static final Pattern FUNCTION_DEF = Pattern.compile("\\bdef\\s+([a-zA-Z_][a-zA-Z0-9_]*)\\s*\\(");
     private static final Pattern LAMBDA = Pattern.compile("\\blambda\\b");
@@ -57,15 +60,24 @@ public class PythonParser implements CodeElementParser {
 
     @Override
     public DetectedElements parse(String code) {
-        DetectedElements result = runSubprocess(code);
+        DetectedElements result = runSubprocessWithPath(code, pythonPath);
         if (result != null) {
             return result;
         }
-        log.warn("Python subprocess parse failed, falling back to regex");
+        for (String cmd : PYTHON_CMD_CANDIDATES) {
+            if (cmd.equals(pythonPath)) continue;
+            result = runSubprocessWithPath(code, cmd);
+            if (result != null) {
+                log.info("Python AST parsing succeeded with '{}'", cmd);
+                return result;
+            }
+        }
+        log.warn("Python subprocess parse failed for all commands ({}), falling back to regex",
+                String.join(", ", PYTHON_CMD_CANDIDATES));
         return fallbackParse(code);
     }
 
-    private DetectedElements runSubprocess(String code) {
+    private DetectedElements runSubprocessWithPath(String code, String pythonCmd) {
         Path scriptPath = null;
         try {
             var resource = new ClassPathResource("scripts/parse_python.py");
@@ -74,8 +86,9 @@ public class PythonParser implements CodeElementParser {
                 Files.write(scriptPath, in.readAllBytes());
             }
 
-            ProcessBuilder pb = new ProcessBuilder(pythonPath, scriptPath.toAbsolutePath().toString());
+            ProcessBuilder pb = new ProcessBuilder(pythonCmd, scriptPath.toAbsolutePath().toString());
             pb.redirectErrorStream(true);
+            pb.environment().put("PYTHONIOENCODING", "utf-8");
             Process proc = pb.start();
 
             try (var out = new OutputStreamWriter(proc.getOutputStream(), StandardCharsets.UTF_8)) {
@@ -114,7 +127,7 @@ public class PythonParser implements CodeElementParser {
                     .variables(variables)
                     .build();
         } catch (Exception e) {
-            log.debug("Subprocess parse failed: {}", e.getMessage());
+            log.debug("Subprocess parse failed with '{}': {}", pythonCmd, e.getMessage());
             return null;
         } finally {
             if (scriptPath != null) {

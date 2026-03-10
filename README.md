@@ -1,13 +1,18 @@
+### 1. Set your Gemini API key
 
-
+**Linux/Mac:**
 ```bash
-export GEMINI_API_KEY=your-api-key-here`
+export GEMINI_API_KEY=your-api-key-here
 ```
 
-Windows:
-
+**Windows (PowerShell):**
 ```powershell
 $env:GEMINI_API_KEY="your-api-key-here"
+```
+
+**Alternative:** Create `backend/src/main/resources/application-local.properties` with:
+```properties
+app.gemini.api-key=your-api-key-here
 ```
 
 ---

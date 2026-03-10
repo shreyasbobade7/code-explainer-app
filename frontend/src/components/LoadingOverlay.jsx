@@ -1,8 +1,4 @@
-interface LoadingOverlayProps {
-  visible: boolean;
-}
-
-export function LoadingOverlay({ visible }: LoadingOverlayProps) {
+export function LoadingOverlay({ visible }) {
   if (!visible) return null;
 
   return (

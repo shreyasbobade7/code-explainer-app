@@ -1,10 +1,4 @@
-interface ErrorBannerProps {
-  message: string;
-  onDismiss: () => void;
-  onRetry?: () => void;
-}
-
-export function ErrorBanner({ message, onDismiss, onRetry }: ErrorBannerProps) {
+export function ErrorBanner({ message, onDismiss, onRetry }) {
   return (
     <div
       role="alert"

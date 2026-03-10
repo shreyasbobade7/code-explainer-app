@@ -18,14 +18,17 @@ public class GlobalExceptionHandler {
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+    public ResponseEntity<Map<String, Object>> handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getAllErrors().forEach(error -> {
             String field = error instanceof FieldError fe ? fe.getField() : error.getObjectName();
             String message = error.getDefaultMessage();
             errors.put(field, message);
         });
-        return ResponseEntity.badRequest().body(errors);
+        String errorMessage = String.join("; ", errors.values());
+        Map<String, Object> body = new HashMap<>(errors);
+        body.put("error", errorMessage);
+        return ResponseEntity.badRequest().body(body);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

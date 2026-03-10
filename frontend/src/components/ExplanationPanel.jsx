@@ -1,12 +1,4 @@
-import type { DetectedElements, ExplainResponse } from '../types/api';
-
-interface ExplanationPanelProps {
-  response: ExplainResponse | null;
-  loading?: boolean;
-  error?: string | null;
-}
-
-export function ExplanationPanel({ response, loading, error }: ExplanationPanelProps) {
+export function ExplanationPanel({ response, loading, error }) {
   if (loading) {
     return (
       <div className="h-full flex items-center justify-center text-[var(--text-muted)]">
@@ -40,13 +32,22 @@ export function ExplanationPanel({ response, loading, error }: ExplanationPanelP
     );
   }
 
-  const { explanation, timeComplexity, detectedElements } = response;
+  const explanation = response.explanation ?? '';
+  const timeComplexity = response.timeComplexity ?? 'Unknown';
+  const detectedElements = response.detectedElements ?? {
+    functions: [],
+    loops: [],
+    conditionals: [],
+    variables: [],
+  };
 
   return (
     <div className="space-y-5 overflow-y-auto h-full pr-2">
       <section>
         <h3 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-2">Explanation</h3>
-        <p className="text-[var(--text-primary)] leading-relaxed text-sm">{explanation}</p>
+        <p className="text-[var(--text-primary)] leading-relaxed text-sm whitespace-pre-wrap">
+          {explanation || 'No explanation available.'}
+        </p>
       </section>
 
       <section>
@@ -64,12 +65,13 @@ export function ExplanationPanel({ response, loading, error }: ExplanationPanelP
   );
 }
 
-function DetectedElementsList({ elements }: { elements: DetectedElements }) {
+function DetectedElementsList({ elements }) {
+  const safe = elements ?? {};
   const sections = [
-    { label: 'Functions', items: elements.functions, color: 'text-blue-400' },
-    { label: 'Loops', items: elements.loops, color: 'text-amber-400' },
-    { label: 'Conditionals', items: elements.conditionals ?? [], color: 'text-purple-400' },
-    { label: 'Variables', items: elements.variables, color: 'text-emerald-400' },
+    { label: 'Functions', items: Array.isArray(safe.functions) ? safe.functions : [], color: 'text-blue-400' },
+    { label: 'Loops', items: Array.isArray(safe.loops) ? safe.loops : [], color: 'text-amber-400' },
+    { label: 'Conditionals', items: Array.isArray(safe.conditionals) ? safe.conditionals : [], color: 'text-purple-400' },
+    { label: 'Variables', items: Array.isArray(safe.variables) ? safe.variables : [], color: 'text-emerald-400' },
   ].filter((s) => s.items.length > 0);
 
   if (sections.length === 0) {

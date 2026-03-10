@@ -1,20 +1,11 @@
 import Editor from '@monaco-editor/react';
-import type { Language } from '../types/api';
 
-interface CodeEditorProps {
-  value: string;
-  language: Language;
-  onChange: (value: string) => void;
-  readOnly?: boolean;
-  height?: string;
-}
-
-const monacoLanguageMap: Record<Language, string> = {
+const monacoLanguageMap = {
   javascript: 'javascript',
   python: 'python',
 };
 
-export function CodeEditor({ value, language, onChange, readOnly = false, height = '100%' }: CodeEditorProps) {
+export function CodeEditor({ value, language, onChange, readOnly = false, height = '100%' }) {
   return (
     <div className="overflow-hidden bg-[#1e1e1e]">
       <Editor

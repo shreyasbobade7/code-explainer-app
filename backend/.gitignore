@@ -24,9 +24,8 @@ logs/
 .DS_Store
 Thumbs.db
 
-# Spring Boot secrets
-src/main/resources/application.properties
-src/main/resources/application-dev.properties
+# Spring Boot secrets (only application-local.properties contains real keys)
+src/main/resources/application-local.properties
 
 # Environment files
 .env

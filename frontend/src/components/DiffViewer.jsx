@@ -1,11 +1,5 @@
 import ReactDiffViewer, { DiffMethod } from 'react-diff-viewer-continued';
 
-interface DiffViewerProps {
-  original: string;
-  optimized: string;
-  visible: boolean;
-}
-
 const diffStyles = {
   variables: {
     dark: {
@@ -27,7 +21,7 @@ const diffStyles = {
   },
 };
 
-export function DiffViewer({ original, optimized, visible }: DiffViewerProps) {
+export function DiffViewer({ original, optimized, visible }) {
   if (!visible) return null;
 
   return (

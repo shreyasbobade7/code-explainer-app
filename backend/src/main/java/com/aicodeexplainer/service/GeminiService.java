@@ -41,13 +41,13 @@ public class GeminiService {
         );
 
         // Build path: /models/{model}:generateContent
-        String pathTemplate = "/models/gemini-2.0-flash:generateContent";
+        String path = "/models/" + modelName + ":generateContent";
 
         return geminiWebClient.post()
                 .uri(uriBuilder -> uriBuilder
-                        .path(pathTemplate)
+                        .path(path)
                         .queryParam("key", apiKey)
-                        .build(modelName))
+                        .build())
                 .bodyValue(requestBody)
                 .retrieve()
                 .bodyToMono(String.class)
@@ -67,14 +67,23 @@ public class GeminiService {
     private String extractGeminiText(String response) {
         try {
             JsonNode root = objectMapper.readTree(response);
-            JsonNode candidate = root.path("candidates");
-            if (!candidate.isArray() || candidate.size() == 0) {
-                throw new RuntimeException("No candidates in Gemini response");
+            JsonNode candidates = root.path("candidates");
+            if (!candidates.isArray() || candidates.isEmpty()) {
+                throw new RuntimeException("No candidates in Gemini response. " +
+                        "The model may have blocked the content. Check your prompt.");
             }
-            return candidate.get(0).path("content").path("parts").get(0).path("text").asText("");
+            JsonNode firstCandidate = candidates.get(0);
+            JsonNode content = firstCandidate.path("content");
+            JsonNode parts = content.path("parts");
+            if (!parts.isArray() || parts.isEmpty()) {
+                throw new RuntimeException("Gemini returned empty content. The response may have been blocked.");
+            }
+            return parts.get(0).path("text").asText("");
+        } catch (RuntimeException e) {
+            throw e;
         } catch (Exception e) {
             log.error("Failed to parse Gemini response", e);
-            throw new RuntimeException("Failed to parse Gemini response", e);
+            throw new RuntimeException("Failed to parse Gemini response: " + e.getMessage(), e);
         }
     }
 

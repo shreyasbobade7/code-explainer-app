@@ -6,7 +6,6 @@ import { HistorySidebar } from './components/HistorySidebar';
 import { ErrorBanner } from './components/ErrorBanner';
 import { LoadingOverlay } from './components/LoadingOverlay';
 import { explainCode } from './api/explain';
-import type { Language, ExplainResponse, SnippetHistoryItem } from './types/api';
 
 const DEFAULT_JS = `function calculateSum(arr) {
   let total = 0;
@@ -28,12 +27,12 @@ function generateId() {
 
 function App() {
   const [code, setCode] = useState(DEFAULT_JS);
-  const [language, setLanguage] = useState<Language>('javascript');
-  const [response, setResponse] = useState<ExplainResponse | null>(null);
+  const [language, setLanguage] = useState('javascript');
+  const [response, setResponse] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [history, setHistory] = useState<SnippetHistoryItem[]>([]);
-  const [selectedHistoryId, setSelectedHistoryId] = useState<string | null>(null);
+  const [error, setError] = useState(null);
+  const [history, setHistory] = useState([]);
+  const [selectedHistoryId, setSelectedHistoryId] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const handleExplain = useCallback(async () => {
@@ -42,7 +41,7 @@ function App() {
     try {
       const result = await explainCode(code, language);
       setResponse(result);
-      const item: SnippetHistoryItem = {
+      const item = {
         id: generateId(),
         code,
         language,
@@ -58,7 +57,7 @@ function App() {
     }
   }, [code, language]);
 
-  const handleSelectHistory = useCallback((item: SnippetHistoryItem) => {
+  const handleSelectHistory = useCallback((item) => {
     setCode(item.code);
     setLanguage(item.language);
     setResponse(item.response ?? null);
@@ -71,7 +70,7 @@ function App() {
     setSelectedHistoryId(null);
   }, []);
 
-  const handleLanguageChange = (lang: Language) => {
+  const handleLanguageChange = (lang) => {
     setLanguage(lang);
     setCode(lang === 'javascript' ? DEFAULT_JS : DEFAULT_PY);
   };
@@ -100,7 +99,7 @@ function App() {
         </div>
         <div className="flex items-center gap-2 sm:gap-4 shrink-0">
           <div className="flex rounded-lg bg-[var(--bg-tertiary)] p-0.5">
-            {(['javascript', 'python'] as const).map((lang) => (
+            {['javascript', 'python'].map((lang) => (
               <button
                 key={lang}
                 onClick={() => handleLanguageChange(lang)}
